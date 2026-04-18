@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DISEC Bülten</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: "#213247",
+            panel: "#f6f1e8",
+            panelSoft: "#efe8dc",
+            panelGlass: "#f8f3eb",
+            line: "#d6ccbd",
+            brand: "#173b6b",
+            signal: "#c5372f",
+            signalSoft: "#de5a52",
+            gold: "#b5985a",
+            mist: "#70695f",
+            frost: "#111827"
+          },
+          boxShadow: {
+            card: "0 12px 30px rgba(10, 18, 32, 0.15)",
+            glow: "0 8px 18px rgba(10, 18, 32, 0.07)"
+          },
+          fontFamily: {
+            sans: ['"Segoe UI"', "system-ui", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+    }
+
+    body.modal-open {
+      overflow: hidden;
+    }
+
+    .ticker-track {
+      animation: ticker-scroll 28s linear infinite;
+      will-change: transform;
+    }
+
+    .ticker-track:hover {
+      animation-play-state: paused;
+    }
+
+    @keyframes ticker-scroll {
+      from {
+        transform: translateX(0);
+      }
+      to {
+        transform: translateX(-50%);
+      }
+    }
+
+    .news-card {
+      transform: translateY(0);
+      transition: transform 220ms ease, border-color 220ms ease, background-color 220ms ease, box-shadow 220ms ease;
+    }
+
+    .news-card:hover,
+    .news-card:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    .fade-in {
+      animation: fade-in 180ms ease-out;
+    }
+
+    .filter-chip.is-active {
+      border-color: rgba(197, 55, 47, 0.45);
+      background: rgba(197, 55, 47, 0.14);
+      color: #111827;
+    }
+
+    .sheet-panel {
+      transform: translateY(100%);
+      transition: transform 220ms ease-out;
+      height: min(82vh, 42rem);
+    }
+
+    .sheet-panel.is-open {
+      transform: translateY(0);
+    }
+
+    .sheet-scroll {
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
+    .modal-shell {
+      height: min(88vh, 46rem);
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-ink text-slate-900 antialiased">
+  <div class="relative overflow-hidden">
+    <div class="absolute inset-0 bg-[linear-gradient(180deg,_rgba(255,255,255,0.03),_transparent_18%),radial-gradient(circle_at_top,_rgba(23,59,107,0.14),_transparent_26%)]"></div>
+
+    <header class="relative border-b border-white/10 bg-brand/90 backdrop-blur-md">
+      <div class="mx-auto max-w-6xl">
+        <div class="overflow-hidden border-b border-white/10 bg-signal text-white">
+          <div class="flex items-center gap-3 px-4 py-2 sm:px-6">
+            <span class="shrink-0 rounded-full border border-white/20 bg-black/15 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.28em]">
+              Son Dakika
+            </span>
+            <div class="relative flex-1 overflow-hidden">
+              <div id="tickerTrack" class="ticker-track flex w-max min-w-full items-center gap-8 whitespace-nowrap text-[11px] font-medium tracking-[0.14em] text-white/95 sm:text-xs"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="px-4 py-6 sm:px-6 sm:py-7">
+          <div class="flex flex-col gap-5">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-gold">Uluslararası Güvenlik Masası</p>
+                <h1 class="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">DISEC Bülten</h1>
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  id="definitionsButton"
+                  class="min-h-11 rounded-full border border-line bg-panel px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.24em] text-brand transition hover:border-white/30"
+                >
+                  DISEC Terimleri
+                </button>
+                <button
+                  type="button"
+                  id="delegationsButton"
+                  class="min-h-11 rounded-full border border-white/15 bg-white/10 px-4 py-2.5 text-[10px] font-medium uppercase tracking-[0.28em] text-white/90 transition hover:border-white/30"
+                >
+                  Delegasyonlar
+                </button>
+              </div>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-[1.45fr_1fr]">
+              <p class="max-w-2xl text-sm leading-7 text-slate-200 sm:text-base">
+                Model Birleşmiş Milletler DISEC oturumları için kriz gelişmelerini, savunma gündemini ve delegasyon dinamiklerini tek akışta toplayan mobil öncelikli bir komite haber merkezi.
+              </p>
+              <div class="grid grid-cols-2 gap-3 text-xs sm:text-sm">
+                <div class="rounded-2xl border border-line bg-panelSoft p-3.5 shadow-card">
+                  <p class="text-[10px] uppercase tracking-[0.28em] text-mist">Yayın</p>
+                  <p class="mt-2 font-semibold text-slate-900">Özel Oturum</p>
+                </div>
+                <div class="rounded-2xl border border-line bg-panelSoft p-3.5 shadow-card">
+                  <p class="text-[10px] uppercase tracking-[0.28em] text-mist">Güncelleme</p>
+                  <p id="updatedAt" class="mt-2 font-semibold text-slate-900"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="relative mx-auto max-w-6xl px-4 py-7 sm:px-6 sm:py-9">
+      <section class="mx-auto max-w-3xl">
+        <div class="space-y-5 sm:space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/55">Ana Akış</p>
+              <h2 class="mt-1 text-2xl font-bold tracking-tight text-white">Komite Manşetleri</h2>
+            </div>
+            <div class="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[10px] uppercase tracking-[0.26em] text-white/80">
+              Mobil Bülten
+            </div>
+          </div>
+          <section class="rounded-3xl border border-line bg-panel p-4 shadow-card sm:p-5">
+            <div class="flex flex-col gap-3">
+              <div id="filterBar" class="flex flex-wrap gap-2"></div>
+              <label class="block">
+                <span class="sr-only">Haberlerde ara</span>
+                <input
+                  id="searchInput"
+                  type="search"
+                  placeholder="Başlık veya içerikte ara"
+                  class="min-h-12 w-full rounded-2xl border border-line bg-panelSoft px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-500 focus:border-brand/45 focus:ring-2 focus:ring-brand/10"
+                />
+              </label>
+              <p id="resultsInfo" class="text-[11px] uppercase tracking-[0.22em] text-slate-400"></p>
+            </div>
+          </section>
+          <div id="newsFeed" class="space-y-4"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="articleModal" class="pointer-events-none fixed inset-0 z-50 hidden">
+    <div id="modalBackdrop" class="absolute inset-0 bg-slate-950/30 backdrop-blur-sm"></div>
+    <div class="modal-shell absolute inset-x-0 bottom-0 top-auto overflow-hidden rounded-t-[2rem] border border-line bg-panelGlass shadow-[0_-16px_48px_rgba(15,23,42,0.14)] sm:inset-0 sm:m-auto sm:h-[min(90vh,46rem)] sm:max-w-2xl sm:rounded-[2rem]">
+      <div id="modalContent" class="flex h-full flex-col"></div>
+    </div>
+  </div>
+
+  <div id="imageLightbox" class="pointer-events-none fixed inset-0 z-[70] hidden">
+    <div id="lightboxBackdrop" class="absolute inset-0 bg-slate-950/88 backdrop-blur-sm"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
+      <div class="relative w-full max-w-5xl">
+        <button
+          type="button"
+          id="closeLightboxButton"
+          class="absolute right-0 top-0 z-10 min-h-11 rounded-full border border-white/15 bg-black/40 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-white backdrop-blur-sm"
+        >
+          Kapat
+        </button>
+        <div class="overflow-hidden rounded-[1.75rem] border border-white/10 bg-black/30 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+          <img id="lightboxImage" src="" alt="" class="max-h-[82vh] w-full object-contain" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="definitionsModal" class="pointer-events-none fixed inset-0 z-50 hidden">
+    <div id="definitionsBackdrop" class="absolute inset-0 bg-slate-950/30 backdrop-blur-sm"></div>
+    <div id="definitionsPanel" class="sheet-panel absolute inset-x-0 bottom-0 overflow-hidden rounded-t-[2rem] border border-line bg-panelGlass shadow-[0_-16px_48px_rgba(15,23,42,0.14)] sm:inset-0 sm:m-auto sm:h-[min(80vh,42rem)] sm:max-w-xl sm:rounded-[2rem]">
+      <div class="flex h-full flex-col overflow-hidden">
+        <div class="shrink-0 flex items-center justify-between border-b border-white/10 px-5 py-4">
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Referans Masası</p>
+            <h3 class="mt-1 text-lg font-semibold text-white">DISEC Hızlı Tanımlar</h3>
+          </div>
+          <button
+            type="button"
+            id="closeDefinitionsButton"
+            class="min-h-11 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-200"
+          >
+            Kapat
+          </button>
+        </div>
+        <div id="definitionsList" class="sheet-scroll flex-1 px-5 pb-6 pt-5"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="delegationsModal" class="pointer-events-none fixed inset-0 z-50 hidden">
+    <div id="delegationsBackdrop" class="absolute inset-0 bg-slate-950/30 backdrop-blur-sm"></div>
+    <div id="delegationsPanel" class="sheet-panel absolute inset-x-0 bottom-0 overflow-hidden rounded-t-[2rem] border border-line bg-panelGlass shadow-[0_-16px_48px_rgba(15,23,42,0.14)] sm:inset-0 sm:m-auto sm:h-[min(82vh,46rem)] sm:max-w-xl sm:rounded-[2rem]">
+      <div class="flex h-full flex-col overflow-hidden">
+        <div class="shrink-0 flex items-center justify-between border-b border-white/10 px-5 py-4">
+          <div>
+            <p class="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Komite Rehberi</p>
+            <h3 class="mt-1 text-lg font-semibold text-white">Delegasyonlar</h3>
+          </div>
+          <button
+            type="button"
+            id="closeDelegationsButton"
+            class="min-h-11 rounded-full border border-line bg-panelSoft px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-700"
+          >
+            Kapat
+          </button>
+        </div>
+        <div id="delegationsList" class="sheet-scroll flex-1 px-5 pb-6 pt-5"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const inlineImage = (label, toneA, toneB) =>
+      `data:image/svg+xml;utf8,${encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720">
+          <defs>
+            <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="${toneA}" />
+              <stop offset="100%" stop-color="${toneB}" />
+            </linearGradient>
+          </defs>
+          <rect width="1200" height="720" fill="url(#g)" />
+          <circle cx="940" cy="160" r="120" fill="rgba(255,255,255,0.08)" />
+          <circle cx="260" cy="540" r="150" fill="rgba(255,255,255,0.05)" />
+          <rect x="110" y="120" width="980" height="480" rx="28" fill="rgba(5,10,15,0.18)" stroke="rgba(255,255,255,0.18)" />
+          <text x="120" y="390" fill="rgba(255,255,255,0.92)" font-family="Segoe UI, Arial, sans-serif" font-size="54" font-weight="700">${label}</text>
+        </svg>
+      `)}`;
+
+    const NEWS_JSON_URL = "https://script.google.com/macros/s/AKfycbyi7WInKa0AqYTtcqzAOy4U28MyKWJbksIDna1sdDFX2iyLnxi3Q_CtSIK6I26iCGBM/exec";
+
+    const siteData = {
+      banner: {
+        items: [
+          "Stratejik unsurların alarma geçirilmesinin ardından güvenlik temasları hız kazandı",
+          "Komite kulislerinde doğrulama ve denetim mekanizmaları etrafında yeni bir pazarlık turu başladı",
+          "Delegasyonlar, tırmanmayı önleyici dil ile caydırıcılık vurgusu arasında hassas bir denge kurmaya çalışıyor"
+        ]
+      },
+      articles: [],
+      definitions: [
+        {
+          term: "MAD",
+          description: "Karşılıklı Garantili Yok Oluş: Nükleer savaşın, her iki taraf için de yıkıcı bir misilleme anlamına geleceği için caydırıldığı düşüncesi."
+        },
+        {
+          term: "İkinci Vuruş Kapasitesi",
+          description: "Bir devletin ilk nükleer saldırıyı aldıktan sonra da karşılık verebilme yeteneği; bu kapasite caydırıcılığın inandırıcılığını artırır."
+        },
+        {
+          term: "Nükleer Kış",
+          description: "Geniş çaplı bir nükleer savaşın ardından ortaya çıkabileceği öne sürülen, duman ve isin güneş ışığını kesmesiyle oluşan ağır küresel iklim etkisi."
+        },
+        {
+          term: "Caydırıcılık",
+          description: "Bir saldırının maliyetinin olası kazançtan daha ağır olacağını rakibe kabul ettirerek düşmanca eylemi önlemeyi amaçlayan strateji."
+        },
+        {
+          term: "Silahların Kontrolü",
+          description: "Silah sistemlerinin geliştirilmesi, yayılması ve kullanılmasının anlaşmalar, denetimler ve karşılıklı yükümlülüklerle sınırlandırılması süreci."
+        }
+      ],
+      delegations: [
+        { name: "Seda Özkan", country: "Avustralya", code: "AU" },
+        { name: "Zeynep Sevimli", country: "Belçika", code: "BE" },
+        { name: "Enes Eyüb Çevik", country: "Belarus", code: "BY" },
+        { name: "Meryem Gül Kilim", country: "Kanada", code: "CA" },
+        { name: "Dilara Suvacı", country: "Çin", code: "CN" },
+        { name: "Ceren Çalışkan", country: "Fransa", code: "FR" },
+        { name: "Mayan Abuhinda", country: "Almanya", code: "DE" },
+        { name: "Cemre Önal", country: "Hindistan", code: "IN" },
+        { name: "İrem Beyza Söğüt", country: "İran", code: "IR" },
+        { name: "Fatih Cambaz", country: "İsrail", code: "IL" },
+        { name: "Tanver Cem Şahinoğlu", country: "Japonya", code: "JP" },
+        { name: "Uğur Çelik", country: "Kuzey Kore", code: "KP" },
+        { name: "Hatice Nur Uzğur", country: "Hollanda", code: "NL" },
+        { name: "Eymen Anlaş", country: "Pakistan", code: "PK" },
+        { name: "Ela Altıntaş", country: "Polonya", code: "PL" },
+        { name: "Emir Berke Ataş", country: "Rusya", code: "RU" },
+        { name: "Nisa Uzun", country: "Suudi Arabistan", code: "SA" },
+        { name: "Yağız Ömer Turan", country: "Güney Kore", code: "KR" },
+        { name: "Melih Kerem Akdaş", country: "Türkiye", code: "TR" },
+        { name: "Sena Köse", country: "Ukrayna", code: "UA" },
+        { name: "Zehra Anık", country: "Birleşik Arap Emirlikleri", code: "AE" },
+        { name: "Halil İbrahim Yıkılmaz", country: "Birleşik Krallık", code: "GB" },
+        { name: "Yusuf Süleyman Çakmak", country: "Amerika Birleşik Devletleri", code: "US" },
+        { name: "Tuğçe Yetiş", country: "Mısır", code: "EG" }
+      ]
+    };
+
+    const modalState = {
+      activeArticle: null,
+      lightboxOpen: false,
+      definitionsOpen: false,
+      delegationsOpen: false
+    };
+
+    const uiState = {
+      activeFilter: "TÜMÜ",
+      searchTerm: "",
+      visibleCount: 6,
+      newsStatus: "loading",
+      newsError: "",
+      newsDebug: {
+        url: "",
+        status: "",
+        statusText: "",
+        responseText: "",
+        parseError: "",
+        fetchError: ""
+      }
+    };
+
+    const filterOptions = ["TÜMÜ", "SON DAKİKA", "CİDDİ", "KULİS"];
+    const NEWS_BATCH_SIZE = 6;
+    const delegationCountryOrder = [
+      "Almanya",
+      "Amerika Birleşik Devletleri",
+      "Avustralya",
+      "Belarus",
+      "Belçika",
+      "Birleşik Arap Emirlikleri",
+      "Birleşik Krallık",
+      "Çin",
+      "Fransa",
+      "Güney Kore",
+      "Hindistan",
+      "Hollanda",
+      "İran",
+      "İsrail",
+      "Japonya",
+      "Kanada",
+      "Kuzey Kore",
+      "Mısır",
+      "Pakistan",
+      "Polonya",
+      "Rusya",
+      "Suudi Arabistan",
+      "Türkiye",
+      "Ukrayna"
+    ];
+
+    function countryCodeToFlag(code) {
+      if (!code || code.length !== 2) return null;
+      return code
+        .toUpperCase()
+        .split("")
+        .map((char) => String.fromCodePoint(127397 + char.charCodeAt(0)))
+        .join("");
+    }
+
+    function parseTimeValue(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return -1;
+
+      const dateTimeMatch = raw.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?$/);
+      if (dateTimeMatch) {
+        const [, day, month, year, hour, minute, second = "0"] = dateTimeMatch;
+        const fullYear = year.length === 2 ? `20${year}` : year;
+        return new Date(
+          Number(fullYear),
+          Number(month) - 1,
+          Number(day),
+          Number(hour),
+          Number(minute),
+          Number(second)
+        ).getTime();
+      }
+
+      const timeMatch = raw.match(/^(\d{1,2})[:.](\d{2})(?::(\d{2}))?$/);
+      if (timeMatch) {
+        const [, hour, minute, second = "0"] = timeMatch;
+        return Number(hour) * 3600 + Number(minute) * 60 + Number(second);
+      }
+
+      const nativeTime = Date.parse(raw);
+      return Number.isNaN(nativeTime) ? -1 : nativeTime;
+    }
+
+    function formatNewsroomDateTime(value) {
+      const raw = String(value || "").trim();
+      if (!raw) return "00 Oca 0000 • 00:00";
+
+      let parsedDate = null;
+      const dateTimeMatch = raw.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})(?:\s+|T)(\d{1,2})[:.](\d{2})(?::(\d{2}))?/);
+
+      if (dateTimeMatch) {
+        const [, day, month, year, hour, minute, second = "0"] = dateTimeMatch;
+        const fullYear = year.length === 2 ? `20${year}` : year;
+        parsedDate = new Date(
+          Number(fullYear),
+          Number(month) - 1,
+          Number(day),
+          Number(hour),
+          Number(minute),
+          Number(second)
+        );
+      } else {
+        const nativeDate = new Date(raw);
+        if (!Number.isNaN(nativeDate.getTime())) {
+          parsedDate = nativeDate;
+        }
+      }
+
+      if (!parsedDate || Number.isNaN(parsedDate.getTime())) {
+        return raw;
+      }
+
+      const datePart = parsedDate.toLocaleDateString("tr-TR", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric"
+      }).replace(",", "");
+
+      const timePart = parsedDate.toLocaleTimeString("tr-TR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+
+      return `${datePart} • ${timePart}`;
+    }
+
+    function getRenderableImageUrl(value) {
+      const raw = String(value || "").trim();
+      if (!raw || raw === "[URL]") return null;
+      return raw;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function normalizeFilterValue(value) {
+      return String(value ?? "").trim().toLocaleLowerCase("tr-TR");
+    }
+
+    function normalizeCsvCell(value) {
+      return String(value || "").replace(/^\uFEFF/, "").trim();
+    }
+
+    function resolveHeaderRow(rows) {
+      const requiredHeaders = ["title", "content", "tag", "time", "category", "image", "featured"];
+
+      for (let rowIndex = 0; rowIndex < rows.length; rowIndex += 1) {
+        const row = rows[rowIndex];
+
+        for (let columnOffset = 0; columnOffset < row.length; columnOffset += 1) {
+          const normalizedHeaders = row
+            .slice(columnOffset)
+            .map((cell) => normalizeCsvCell(cell).toLowerCase());
+
+          const score = requiredHeaders.filter((header) => normalizedHeaders.includes(header)).length;
+          if (score === requiredHeaders.length) {
+            return {
+              headerRowIndex: rowIndex,
+              columnOffset,
+              headers: normalizedHeaders,
+              requiredHeaders
+            };
+          }
+        }
+      }
+
+      const previewRows = rows
+        .slice(0, 3)
+        .map((row, index) => `Satır ${index + 1}: ${row.join(" | ") || "Boş"}`)
+        .join(" || ");
+
+      throw new Error(
+        `Beklenen CSV sütunları bulunamadı. İlk satırlarda algılanan yapı: ${previewRows || "Boş CSV"}.`
+      );
+    }
+
+    function mapSheetRowsToArticles(csvText) {
+      const rows = parseCsv(csvText);
+      if (!rows.length) return [];
+
+      const { headerRowIndex, columnOffset, headers } = resolveHeaderRow(rows);
+      const getIndex = (name) => headers.indexOf(name);
+      const dataRows = rows.slice(headerRowIndex + 1);
+
+      if (headerRowIndex > 0 || columnOffset > 0) {
+        console.warn("[DISEC] CSV başlıkları yedek algılayıcı ile bulundu:", {
+          headerRowIndex,
+          columnOffset,
+          headerPreview: rows[headerRowIndex]
+        });
+      }
+
+      return dataRows
+        .map((row) => {
+          const normalizedRow = row.slice(columnOffset).map((cell) => normalizeCsvCell(cell));
+          const title = normalizedRow[getIndex("title")] || "";
+          const content = normalizedRow[getIndex("content")] || "";
+          const tag = normalizedRow[getIndex("tag")] || "";
+          const time = normalizedRow[getIndex("time")] || "";
+          const category = normalizedRow[getIndex("category")] || "CİDDİ";
+          const image = normalizedRow[getIndex("image")] || "";
+          const featured = (normalizedRow[getIndex("featured")] || "").toUpperCase() === "TRUE";
+
+          if (!title || !content) return null;
+
+          return {
+            title,
+            content,
+            fullText: content,
+            tag: tag || "Gündem",
+            time: time || "00.00",
+            category,
+            image: image || null,
+            featured,
+            sortTime: parseTimeValue(time || "00.00")
+          };
+        })
+        .filter(Boolean)
+        .sort((a, b) => {
+          if (a.featured !== b.featured) return Number(b.featured) - Number(a.featured);
+          return b.sortTime - a.sortTime;
+        });
+    }
+
+    async function legacyCsvLoaderDisabled() {
+      uiState.newsStatus = "loading";
+      uiState.newsError = "";
+      uiState.newsDebug = {
+        url: SHEET_CSV_URL,
+        status: "",
+        statusText: "",
+        responseText: "",
+        parseError: "",
+        fetchError: ""
+      };
+      refreshNews();
+
+      try {
+        console.info("[DISEC] Google Sheets isteği başlatılıyor:", SHEET_CSV_URL);
+        const response = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+        uiState.newsDebug.status = String(response.status);
+        uiState.newsDebug.statusText = response.statusText || "";
+        console.info("[DISEC] Fetch yanıtı:", {
+          url: SHEET_CSV_URL,
+          status: response.status,
+          statusText: response.statusText
+        });
+
+        const csvText = await response.text();
+        uiState.newsDebug.responseText = csvText;
+        console.info("[DISEC] Ham yanıt metni:", csvText);
+
+        if (!response.ok) {
+          throw new Error(`Sheet request failed: ${response.status} ${response.statusText || ""}`.trim());
+        }
+
+        let articles = [];
+
+        try {
+          articles = mapSheetRowsToArticles(csvText);
+        } catch (parseError) {
+          uiState.newsDebug.parseError = parseError instanceof Error ? parseError.message : String(parseError);
+          console.error("[DISEC] CSV ayrıştırma hatası:", {
+            url: SHEET_CSV_URL,
+            parseError,
+            responseText: csvText
+          });
+          throw parseError;
+        }
+
+        if (!articles.length) {
+          uiState.newsDebug.parseError = "CSV alındı ancak gerekli sütunlardan kullanılabilir satır üretilemedi.";
+          console.error("[DISEC] Kullanılabilir haber satırı üretilemedi:", {
+            url: SHEET_CSV_URL,
+            responseText: csvText
+          });
+          throw new Error("Sheet returned no usable rows");
+        }
+
+        siteData.articles = articles;
+        uiState.visibleCount = NEWS_BATCH_SIZE;
+        uiState.newsStatus = "ready";
+        refreshNews();
+      } catch (error) {
+        uiState.newsStatus = "error";
+        uiState.newsDebug.fetchError = error instanceof Error ? error.message : String(error);
+        uiState.newsError = "Google Sheets verisi yüklenemedi. Aşağıdaki teşhis ayrıntıları sorunun gerçek nedenini gösterir.";
+        console.error("[DISEC] Veri yükleme hatası:", {
+          url: SHEET_CSV_URL,
+          status: uiState.newsDebug.status,
+          statusText: uiState.newsDebug.statusText,
+          responseText: uiState.newsDebug.responseText,
+          parseError: uiState.newsDebug.parseError,
+          fetchError: uiState.newsDebug.fetchError
+        });
+        refreshNews();
+      }
+    }
+
+    function renderTicker(items) {
+      const tickerTrack = document.getElementById("tickerTrack");
+      const line = items
+        .map(
+          (item) => `
+            <span class="flex items-center gap-3">
+              <span class="h-1.5 w-1.5 rounded-full bg-white/80"></span>
+              <span>${item}</span>
+            </span>
+          `
+        )
+        .join("");
+
+      tickerTrack.innerHTML = `${line}${line}`;
+    }
+
+    function getVisibleArticles(articles) {
+      const visibleCount = Math.max(NEWS_BATCH_SIZE, uiState.visibleCount);
+      const primaryStory = articles.find((article) => article.featured) || null;
+      const orderedArticles = primaryStory
+        ? [primaryStory, ...articles.filter((article) => article.originalIndex !== primaryStory.originalIndex)]
+        : [...articles];
+
+      return orderedArticles
+        .slice(0, visibleCount)
+        .map((article, index) => ({ ...article, isPrimaryStory: index === 0 && Boolean(primaryStory) }));
+    }
+
+    function renderNews(articles) {
+      const feed = document.getElementById("newsFeed");
+      if (uiState.newsStatus === "loading") {
+        feed.innerHTML = `
+          <div class="rounded-3xl border border-line bg-panel p-6 text-center shadow-card">
+            <p class="text-sm font-semibold text-slate-900">Haberler yükleniyor</p>
+            <p class="mt-2 text-sm leading-6 text-slate-500">Veri servisi alınıyor, lütfen bekleyin.</p>
+          </div>
+        `;
+        return;
+      }
+
+      if (uiState.newsStatus === "error") {
+        const debug = uiState.newsDebug;
+        feed.innerHTML = `
+          <div class="rounded-3xl border border-dashed border-line bg-panel p-5 shadow-card sm:p-6">
+            <p class="text-sm font-semibold text-slate-900">Veri yüklenemedi</p>
+            <p class="mt-2 text-sm leading-6 text-slate-600">${escapeHtml(uiState.newsError)}</p>
+            <div class="mt-4 space-y-3 rounded-2xl border border-line bg-panelSoft p-4 text-left">
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Hata URL</p>
+                <p class="mt-1 break-all text-sm leading-6 text-slate-800">${escapeHtml(debug.url || NEWS_JSON_URL)}</p>
+              </div>
+              <div class="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">HTTP Durumu</p>
+                  <p class="mt-1 text-sm text-slate-800">${escapeHtml(debug.status || "Yok")}</p>
+                </div>
+                <div>
+                  <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Durum Metni</p>
+                  <p class="mt-1 text-sm text-slate-800">${escapeHtml(debug.statusText || "Yok")}</p>
+                </div>
+              </div>
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Fetch Hatası</p>
+                <p class="mt-1 text-sm leading-6 text-slate-800">${escapeHtml(debug.fetchError || "Yok")}</p>
+              </div>
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Ayrıştırma Hatası</p>
+                <p class="mt-1 text-sm leading-6 text-slate-800">${escapeHtml(debug.parseError || "Yok")}</p>
+              </div>
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-500">Ham Yanıt Metni</p>
+                <pre class="mt-1 max-h-56 overflow-auto rounded-2xl border border-line bg-panel px-3 py-3 text-xs leading-6 text-slate-700 whitespace-pre-wrap">${escapeHtml(debug.responseText || "Boş yanıt")}</pre>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      if (!articles.length) {
+        feed.innerHTML = `
+          <div class="rounded-3xl border border-dashed border-line bg-panel p-6 text-center shadow-card">
+            <p class="text-sm font-semibold text-slate-900">Haber bulunamadı</p>
+            <p class="mt-2 text-sm leading-6 text-slate-500">Arama ifadesini veya kategori seçimini değiştirerek yeniden deneyebilirsin.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const visibleArticles = getVisibleArticles(articles);
+      const hasMoreArticles = articles.length > visibleArticles.length;
+
+      feed.innerHTML = `
+        ${visibleArticles
+        .map((article, index) => {
+          const isFeatured = article.isPrimaryStory;
+          const imageUrl = getRenderableImageUrl(article.image);
+          const shellClass = isFeatured
+            ? "rounded-3xl border border-line bg-panel shadow-[0_12px_28px_rgba(10,18,32,0.09)]"
+            : "rounded-[1.7rem] border border-line bg-panel";
+          const imageClass = isFeatured ? "h-52 sm:h-64" : "h-40 sm:h-44";
+          const bodyClass = isFeatured ? "p-5 sm:p-6" : "p-4 sm:p-5";
+          const titleClass = isFeatured
+            ? "mt-4 text-[1.65rem] font-bold leading-[1.12] tracking-[-0.03em] text-slate-950 sm:text-[1.95rem]"
+            : "mt-3 text-[1.06rem] font-semibold leading-[1.3] tracking-[-0.02em] text-slate-900 sm:text-[1.18rem]";
+          const textClass = isFeatured
+            ? "mt-3 text-[15px] leading-7 text-slate-600"
+            : "mt-2.5 text-sm leading-[1.7] text-slate-600";
+
+          return `
+            <button
+              type="button"
+              class="news-card ${shellClass} block w-full overflow-hidden text-left shadow-card focus:outline-none focus-visible:border-signal/70 focus-visible:ring-2 focus-visible:ring-signal/20"
+              data-article-index="${article.originalIndex}"
+              aria-label="${article.title}"
+            >
+              ${imageUrl ? `<div data-image-frame="true" class="relative ${imageClass} w-full overflow-hidden border-b border-white/8 bg-panel shadow-glow"><img src="${imageUrl}" alt="${article.title}" class="h-full w-full object-cover" loading="lazy" onerror="this.closest('[data-image-frame]').style.display='none';" /></div>` : ""}
+              <div class="${bodyClass}">
+                <div class="flex items-center justify-between gap-3">
+                  <div class="flex flex-wrap items-center gap-2.5">
+                    <span class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">${formatNewsroomDateTime(article.time)}</span>
+                    <span class="rounded-full border border-signal/30 bg-signal/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-signalSoft">${article.tag}</span>
+                    <span class="rounded-full border border-line bg-panelSoft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-700">${article.category}</span>
+                  </div>
+                  <span class="shrink-0 text-[10px] uppercase tracking-[0.24em] ${isFeatured ? "text-gold" : "text-slate-500"}">${isFeatured ? "Öne Çıkan" : `Haber ${String(index + 1).padStart(2, "0")}`}</span>
+                </div>
+                <h3 class="${titleClass}">${article.title}</h3>
+                <p class="${textClass}">${article.content}</p>
+                <div class="mt-4 flex items-center justify-between text-[11px] uppercase tracking-[0.22em] text-slate-500">
+                  <span>Haberi Aç</span>
+                  <span class="rounded-full border border-line bg-panelSoft px-2.5 py-1 text-[10px] text-slate-700">${imageUrl ? "Görselli" : "Metin"}</span>
+                </div>
+              </div>
+            </button>
+          `;
+        })
+        .join("")}
+        ${hasMoreArticles
+          ? `
+            <div class="pt-1">
+              <button
+                type="button"
+                class="min-h-12 w-full rounded-2xl border border-line bg-panel px-4 py-3 text-sm font-semibold tracking-[0.02em] text-slate-800 shadow-card transition hover:border-signal/35 hover:text-signal"
+                data-load-more="true"
+              >
+                Daha Fazla Haber
+              </button>
+            </div>
+          `
+          : ""}
+      `;
+    }
+
+    function renderFilters() {
+      const filterBar = document.getElementById("filterBar");
+      filterBar.innerHTML = filterOptions
+        .map(
+          (filter) => `
+            <button
+              type="button"
+              class="filter-chip ${normalizeFilterValue(uiState.activeFilter) === normalizeFilterValue(filter) ? "is-active" : ""} min-h-11 rounded-full border border-line bg-panelSoft px-4 py-2.5 text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-700 transition"
+              data-filter="${filter}"
+            >
+              ${filter}
+            </button>
+          `
+        )
+        .join("");
+    }
+
+    function getFilteredArticles() {
+      const search = uiState.searchTerm.trim().toLocaleLowerCase("tr-TR");
+      return siteData.articles
+        .map((article, originalIndex) => ({ ...article, originalIndex }))
+        .filter((article) => {
+          const normalizedActiveFilter = normalizeFilterValue(uiState.activeFilter);
+          const normalizedArticleCategory = normalizeFilterValue(article.category);
+          const matchesFilter = normalizedActiveFilter === normalizeFilterValue("TÜMÜ") || normalizedArticleCategory === normalizedActiveFilter;
+          const haystack = `${article.title} ${article.content} ${article.fullText} ${article.tag}`.toLocaleLowerCase("tr-TR");
+          const matchesSearch = !search || haystack.includes(search);
+          return matchesFilter && matchesSearch;
+        });
+    }
+
+    function updateResultsInfo(articles) {
+      const resultsInfo = document.getElementById("resultsInfo");
+      if (uiState.newsStatus === "loading") {
+        resultsInfo.textContent = "Haber akışı hazırlanıyor";
+        return;
+      }
+
+      if (uiState.newsStatus === "error") {
+        resultsInfo.textContent = "Veri kaynağına erişilemedi • Teşhis ayrıntıları aşağıda";
+        return;
+      }
+
+      const filterLabel = normalizeFilterValue(uiState.activeFilter) === normalizeFilterValue("TÜMÜ") ? "Tüm kategoriler" : uiState.activeFilter;
+      resultsInfo.textContent = `${articles.length} haber gösteriliyor • ${filterLabel}`;
+    }
+
+    function refreshNews() {
+      const articles = getFilteredArticles();
+      renderFilters();
+      renderNews(articles);
+      updateResultsInfo(articles);
+    }
+
+    function renderDefinitions(definitions) {
+      const list = document.getElementById("definitionsList");
+      list.innerHTML = definitions
+        .map(
+          (item) => `
+            <div class="rounded-2xl border border-line bg-panelSoft p-4">
+              <p class="text-sm font-semibold text-slate-900">${item.term}</p>
+              <p class="mt-2 text-sm leading-6 text-slate-600">${item.description}</p>
+            </div>
+          `
+        )
+        .join("");
+    }
+
+    function renderDelegations(delegations) {
+      const list = document.getElementById("delegationsList");
+      list.innerHTML = [...delegations]
+        .sort((a, b) => {
+          const aIndex = delegationCountryOrder.indexOf(a.country);
+          const bIndex = delegationCountryOrder.indexOf(b.country);
+          const safeA = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
+          const safeB = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
+
+          if (safeA !== safeB) return safeA - safeB;
+          return a.country.localeCompare(b.country, "tr");
+        })
+        .map((item) => {
+          const flag = countryCodeToFlag(item.code);
+          const fallback = item.code || item.country.slice(0, 2).toUpperCase();
+          const flagUrl = item.code ? `https://flagcdn.com/w80/${item.code.toLowerCase()}.png` : "";
+
+          return `
+            <div class="rounded-2xl border border-line bg-panelSoft p-4">
+              <div class="flex items-center gap-4">
+                <div class="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-line bg-panel">
+                  ${
+                    flagUrl
+                      ? `
+                        <img
+                          src="${flagUrl}"
+                          alt="${item.country} bayrağı"
+                          class="h-full w-full object-cover"
+                          loading="lazy"
+                          onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline-flex';"
+                        />
+                        <span aria-hidden="true" class="hidden h-full w-full items-center justify-center bg-panel text-xl">${flag || fallback}</span>
+                      `
+                      : `<span aria-hidden="true" class="flex h-full w-full items-center justify-center bg-panel text-xl">${flag || fallback}</span>`
+                  }
+                </div>
+                <div class="min-w-0">
+                  <p class="truncate text-sm font-semibold text-slate-900">${item.name}</p>
+                  <p class="mt-1 text-sm text-slate-600">${item.country}</p>
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    function setMeta() {
+      const updatedAt = document.getElementById("updatedAt");
+      const now = new Date();
+
+      updatedAt.textContent = formatNewsroomDateTime(now.toISOString());
+    }
+
+    function openModal(articleIndex) {
+      const article = siteData.articles[articleIndex];
+      if (!article) return;
+      const imageUrl = getRenderableImageUrl(article.image);
+
+      modalState.activeArticle = articleIndex;
+
+      const modal = document.getElementById("articleModal");
+      const modalContent = document.getElementById("modalContent");
+
+      modalContent.innerHTML = `
+        <div class="fade-in flex h-full min-h-0 flex-col overflow-hidden">
+          <div class="shrink-0 flex items-center justify-between border-b border-white/10 px-5 py-4 sm:px-6">
+            <div>
+              <p class="text-[10px] font-semibold uppercase tracking-[0.28em] text-slate-400">Ayrıntı Görünümü</p>
+              <p class="mt-1 text-sm font-semibold text-slate-900">${article.tag}</p>
+            </div>
+            <button
+              type="button"
+              id="closeModalButton"
+              class="min-h-11 rounded-full border border-line bg-panelSoft px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-700"
+            >
+              Kapat
+            </button>
+          </div>
+          <div class="sheet-scroll flex-1 px-5 pb-7 pt-5 sm:px-6">
+            ${imageUrl ? `
+              <button
+                type="button"
+                data-open-lightbox="${escapeHtml(imageUrl)}"
+                data-lightbox-alt="${escapeHtml(article.title)}"
+                data-modal-image-frame="true"
+                class="group relative block w-full overflow-hidden rounded-3xl border border-line bg-panelSoft shadow-card focus:outline-none focus-visible:ring-2 focus-visible:ring-signal/20"
+                aria-label="${article.title} görselini büyüt"
+              >
+                <img src="${imageUrl}" alt="${article.title}" class="h-52 w-full object-cover object-top sm:h-64" loading="lazy" onerror="this.closest('[data-modal-image-frame]').style.display='none';" />
+                <span class="pointer-events-none absolute right-3 top-3 inline-flex items-center gap-1 rounded-full border border-white/15 bg-black/38 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/95 backdrop-blur-sm">
+                  <span aria-hidden="true">+</span>
+                  <span>Büyüt</span>
+                </span>
+              </button>
+            ` : ""}
+            <div class="${imageUrl ? "mt-5" : ""}">
+              <div class="flex flex-wrap items-center gap-2.5">
+                <span class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">${formatNewsroomDateTime(article.time)}</span>
+                <span class="rounded-full border border-signal/30 bg-signal/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.22em] text-signalSoft">${article.tag}</span>
+                <span class="rounded-full border border-line bg-panelSoft px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-700">${article.category}</span>
+              </div>
+              <h3 class="mt-4 text-2xl font-semibold leading-tight text-slate-950 sm:text-[1.9rem]">${article.title}</h3>
+              <p class="mt-4 text-sm leading-7 text-slate-600 sm:text-[15px]">${article.fullText}</p>
+            </div>
+          </div>
+        </div>
+      `;
+
+      modal.classList.remove("hidden");
+      modal.classList.add("block");
+      modal.classList.remove("pointer-events-none");
+      document.body.classList.add("modal-open");
+
+      document.getElementById("closeModalButton").addEventListener("click", closeModal);
+    }
+
+    function closeModal() {
+      const modal = document.getElementById("articleModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("block");
+      modal.classList.add("pointer-events-none");
+      modalState.activeArticle = null;
+      syncBodyScroll();
+    }
+
+    function openImageLightbox(src, altText) {
+      if (!src) return;
+
+      const lightbox = document.getElementById("imageLightbox");
+      const image = document.getElementById("lightboxImage");
+
+      image.src = src;
+      image.alt = altText || "Haber görseli";
+      lightbox.classList.remove("hidden");
+      lightbox.classList.remove("pointer-events-none");
+      modalState.lightboxOpen = true;
+      syncBodyScroll();
+    }
+
+    function closeImageLightbox() {
+      const lightbox = document.getElementById("imageLightbox");
+      const image = document.getElementById("lightboxImage");
+
+      lightbox.classList.add("hidden");
+      lightbox.classList.add("pointer-events-none");
+      image.src = "";
+      image.alt = "";
+      modalState.lightboxOpen = false;
+      syncBodyScroll();
+    }
+
+    function openDefinitionsPanel() {
+      const modal = document.getElementById("definitionsModal");
+      const panel = document.getElementById("definitionsPanel");
+
+      modal.classList.remove("hidden");
+      modal.classList.remove("pointer-events-none");
+      panel.classList.add("is-open");
+      modalState.definitionsOpen = true;
+      syncBodyScroll();
+    }
+
+    function closeDefinitionsPanel() {
+      const modal = document.getElementById("definitionsModal");
+      const panel = document.getElementById("definitionsPanel");
+
+      panel.classList.remove("is-open");
+      modalState.definitionsOpen = false;
+      syncBodyScroll();
+
+      window.setTimeout(() => {
+        if (!modalState.definitionsOpen) {
+          modal.classList.add("hidden");
+          modal.classList.add("pointer-events-none");
+        }
+      }, 220);
+    }
+
+    function openDelegationsPanel() {
+      const modal = document.getElementById("delegationsModal");
+      const panel = document.getElementById("delegationsPanel");
+
+      modal.classList.remove("hidden");
+      modal.classList.remove("pointer-events-none");
+      panel.classList.add("is-open");
+      modalState.delegationsOpen = true;
+      syncBodyScroll();
+    }
+
+    function closeDelegationsPanel() {
+      const modal = document.getElementById("delegationsModal");
+      const panel = document.getElementById("delegationsPanel");
+
+      panel.classList.remove("is-open");
+      modalState.delegationsOpen = false;
+      syncBodyScroll();
+
+      window.setTimeout(() => {
+        if (!modalState.delegationsOpen) {
+          modal.classList.add("hidden");
+          modal.classList.add("pointer-events-none");
+        }
+      }, 220);
+    }
+
+    function syncBodyScroll() {
+      const shouldLock = modalState.activeArticle !== null || modalState.lightboxOpen || modalState.definitionsOpen || modalState.delegationsOpen;
+      document.body.classList.toggle("modal-open", shouldLock);
+    }
+
+    function bindEvents() {
+      const feed = document.getElementById("newsFeed");
+      const modalContent = document.getElementById("modalContent");
+      const backdrop = document.getElementById("modalBackdrop");
+      const lightboxBackdrop = document.getElementById("lightboxBackdrop");
+      const closeLightboxButton = document.getElementById("closeLightboxButton");
+      const definitionsBackdrop = document.getElementById("definitionsBackdrop");
+      const delegationsBackdrop = document.getElementById("delegationsBackdrop");
+      const definitionsButton = document.getElementById("definitionsButton");
+      const delegationsButton = document.getElementById("delegationsButton");
+      const closeDefinitionsButton = document.getElementById("closeDefinitionsButton");
+      const closeDelegationsButton = document.getElementById("closeDelegationsButton");
+      const searchInput = document.getElementById("searchInput");
+      const filterBar = document.getElementById("filterBar");
+
+      feed.addEventListener("click", (event) => {
+        const loadMoreButton = event.target.closest("[data-load-more]");
+        if (loadMoreButton) {
+          uiState.visibleCount += NEWS_BATCH_SIZE;
+          refreshNews();
+          return;
+        }
+
+        const trigger = event.target.closest("[data-article-index]");
+        if (!trigger) return;
+        openModal(Number(trigger.dataset.articleIndex));
+      });
+
+      modalContent.addEventListener("click", (event) => {
+        const trigger = event.target.closest("[data-open-lightbox]");
+        if (!trigger) return;
+        openImageLightbox(trigger.dataset.openLightbox, trigger.dataset.lightboxAlt);
+      });
+
+      filterBar.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-filter]");
+        if (!button) return;
+        uiState.activeFilter = button.dataset.filter;
+        uiState.visibleCount = NEWS_BATCH_SIZE;
+        refreshNews();
+      });
+
+      searchInput.addEventListener("input", (event) => {
+        uiState.searchTerm = event.target.value;
+        uiState.visibleCount = NEWS_BATCH_SIZE;
+        refreshNews();
+      });
+
+      backdrop.addEventListener("click", closeModal);
+      lightboxBackdrop.addEventListener("click", closeImageLightbox);
+      closeLightboxButton.addEventListener("click", closeImageLightbox);
+      definitionsButton.addEventListener("click", openDefinitionsPanel);
+      delegationsButton.addEventListener("click", openDelegationsPanel);
+      definitionsBackdrop.addEventListener("click", closeDefinitionsPanel);
+      delegationsBackdrop.addEventListener("click", closeDelegationsPanel);
+      closeDefinitionsButton.addEventListener("click", closeDefinitionsPanel);
+      closeDelegationsButton.addEventListener("click", closeDelegationsPanel);
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && modalState.activeArticle !== null) {
+          closeModal();
+        }
+
+        if (event.key === "Escape" && modalState.lightboxOpen) {
+          closeImageLightbox();
+        }
+
+        if (event.key === "Escape" && modalState.definitionsOpen) {
+          closeDefinitionsPanel();
+        }
+
+        if (event.key === "Escape" && modalState.delegationsOpen) {
+          closeDelegationsPanel();
+        }
+      });
+    }
+
+    function normalizeApiCell(value) {
+      return String(value ?? "").replace(/^\uFEFF/, "").trim();
+    }
+
+    function parseFeaturedValue(value) {
+      if (typeof value === "boolean") return value;
+      const normalized = normalizeApiCell(value).toUpperCase();
+      return normalized === "TRUE" || normalized === "1" || normalized === "EVET";
+    }
+
+    function resolveApiRows(payload) {
+      if (Array.isArray(payload)) return payload;
+      if (payload && Array.isArray(payload.rows)) return payload.rows;
+      if (payload && Array.isArray(payload.data)) return payload.data;
+      if (payload && Array.isArray(payload.items)) return payload.items;
+
+      const payloadKeys = payload && typeof payload === "object" ? Object.keys(payload).join(", ") : typeof payload;
+      throw new Error(`JSON yanıtı dizi formatında değil. Alınan yapı: ${payloadKeys || "boş yanıt"}.`);
+    }
+
+    function mapApiRowsToArticles(payload) {
+      const rows = resolveApiRows(payload);
+      if (!rows.length) return [];
+
+      const articles = rows
+        .map((row, index) => {
+          if (!row || typeof row !== "object") {
+            console.warn("[DISEC] Geçersiz haber satırı atlandı:", { index, row });
+            return null;
+          }
+
+          const title = normalizeApiCell(row.title);
+          const content = normalizeApiCell(row.content);
+          const tag = normalizeApiCell(row.tag);
+          const time = normalizeApiCell(row.time);
+          const category = normalizeApiCell(row.category) || "CİDDİ";
+          const image = normalizeApiCell(row.image);
+          const featured = parseFeaturedValue(row.featured);
+
+          if (!title || !content) {
+            console.warn("[DISEC] Başlık veya içerik eksik olduğu için satır atlandı:", { index, row });
+            return null;
+          }
+
+          return {
+            title,
+            content,
+            fullText: content,
+            tag: tag || "Gündem",
+            time: time || "00.00",
+            category,
+            image: image || null,
+            featured,
+            sortTime: parseTimeValue(time || "00.00")
+          };
+        })
+        .filter(Boolean);
+
+      if (!articles.length) {
+        throw new Error("JSON alındı ancak kullanılabilir haber satırı üretilemedi.");
+      }
+
+      return articles.sort((a, b) => b.sortTime - a.sortTime);
+    }
+
+    async function loadArticlesFromApi() {
+      uiState.newsStatus = "loading";
+      uiState.newsError = "";
+      uiState.newsDebug = {
+        url: NEWS_JSON_URL,
+        status: "",
+        statusText: "",
+        responseText: "",
+        parseError: "",
+        fetchError: ""
+      };
+      refreshNews();
+
+      try {
+        console.info("[DISEC] JSON veri isteği başlatılıyor:", NEWS_JSON_URL);
+        const response = await fetch(NEWS_JSON_URL, { cache: "no-store" });
+        uiState.newsDebug.status = String(response.status);
+        uiState.newsDebug.statusText = response.statusText || "";
+        console.info("[DISEC] JSON yanıtı:", {
+          url: NEWS_JSON_URL,
+          status: response.status,
+          statusText: response.statusText
+        });
+
+        const responseText = await response.text();
+        uiState.newsDebug.responseText = responseText;
+        console.info("[DISEC] Ham JSON yanıt metni:", responseText);
+
+        if (!response.ok) {
+          throw new Error(`JSON isteği başarısız oldu: ${response.status} ${response.statusText || ""}`.trim());
+        }
+
+        let payload = null;
+        let articles = [];
+
+        try {
+          payload = JSON.parse(responseText);
+        } catch (parseError) {
+          uiState.newsDebug.parseError = parseError instanceof Error ? parseError.message : String(parseError);
+          console.error("[DISEC] JSON ayrıştırma hatası:", {
+            url: NEWS_JSON_URL,
+            parseError,
+            responseText
+          });
+          throw parseError;
+        }
+
+        try {
+          articles = mapApiRowsToArticles(payload);
+        } catch (parseError) {
+          uiState.newsDebug.parseError = parseError instanceof Error ? parseError.message : String(parseError);
+          console.error("[DISEC] Haber eşleme hatası:", {
+            url: NEWS_JSON_URL,
+            parseError,
+            payload
+          });
+          throw parseError;
+        }
+
+        siteData.articles = articles;
+        uiState.newsStatus = "ready";
+        refreshNews();
+      } catch (error) {
+        uiState.newsStatus = "error";
+        uiState.newsDebug.fetchError = error instanceof Error ? error.message : String(error);
+        uiState.newsError = "JSON veri servisi yüklenemedi. Aşağıdaki teşhis ayrıntıları sorunun nedenini gösterir.";
+        console.error("[DISEC] Veri yükleme hatası:", {
+          url: NEWS_JSON_URL,
+          status: uiState.newsDebug.status,
+          statusText: uiState.newsDebug.statusText,
+          responseText: uiState.newsDebug.responseText,
+          parseError: uiState.newsDebug.parseError,
+          fetchError: uiState.newsDebug.fetchError
+        });
+        refreshNews();
+      }
+    }
+
+    function init() {
+      renderTicker(siteData.banner.items);
+      setMeta();
+      refreshNews();
+      renderDefinitions(siteData.definitions);
+      renderDelegations(siteData.delegations);
+      bindEvents();
+      loadArticlesFromApi();
+    }
+
+    init();
+  </script>
+</body>
+</html>
